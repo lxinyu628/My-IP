@@ -1,10 +1,6 @@
 <template>
     <!-- MAC Checker -->
-    <div class="mac-checker-section mb-4">
-        <div class="jn-title2">
-            <h2 id="MacChecker" :class="{ 'mobile-h2': isMobile }">🗄️ {{ t('macchecker.Title') }}</h2>
-
-        </div>
+    <div class="mac-checker-section my-4">
         <div class="text-secondary">
             <p>{{ t('macchecker.Note') }}</p>
         </div>
@@ -65,9 +61,9 @@
                                                     {{ t('macchecker.country') }}
                                                 </span>
                                                 <span class="jn-con-title card-title mt-1">
-                                                    {{ getCountryName(macCheckResult.country, lang) }}
                                                     <span
                                                         :class="'jn-fl fi fi-' + macCheckResult.country.toLowerCase()"></span>
+                                                    {{ getCountryName(macCheckResult.country, lang) }}
                                                 </span>
                                             </div>
                                             <div class="jn-detail">

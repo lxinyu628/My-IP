@@ -1,10 +1,6 @@
 <template>
   <!-- mtr Test -->
-  <div class="mtr-test-section mb-4">
-    <div class="jn-title2">
-      <h2 id="MTRTest" :class="{ 'mobile-h2': isMobile }">📡 {{ t('mtrtest.Title') }}</h2>
-
-    </div>
+  <div class="mtr-test-section my-4">
     <div class="text-secondary">
       <p>{{ t('mtrtest.Note') }}</p>
       <p v-if="!isMobile">{{ t('mtrtest.Note2') }}</p>
@@ -92,8 +88,8 @@ const isDarkMode = computed(() => store.isDarkMode);
 const isMobile = computed(() => store.isMobile);
 const lang = computed(() => store.lang);
 let allIPs = computed(() => {
-  const _allIPs = store.Global_ipDataCards;
-  return _allIPs.filter(ip => ip && !ip.includes(' ') && !ip.includes(':'));
+  const _allIPs = store.allIPs;
+  return _allIPs.filter(ip => ip && !ip.includes(' '));
 });
 
 const selectedIP = ref('');

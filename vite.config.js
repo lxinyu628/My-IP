@@ -25,6 +25,52 @@ export default defineConfig({
         globPatterns: [
           '**/*.{js,css,html,woff,woff2}',
           '*.{js,css,html,png,svg,jpg,webp}',
+        ],
+        runtimeCaching: [
+          {
+            urlPattern: /\/(sw\.js|registerSW\.js|manifest\.webmanifest)$/, // sw 文件
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'critical-assets',
+              expiration: {
+                maxEntries: 3,
+                maxAgeSeconds: 4 * 60 * 60, // 4 小时
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|webp|woff|woff2)$/, // 图片文件
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 天
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:js|css)$/, // JS 和 CSS 文件
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'assets',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 3 * 24 * 60 * 60, // 3 天
+              },
+            },
+          },
+          {
+            urlPattern: /\/$/, // HTML
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 3 * 24 * 60 * 60, // 3 天
+              },
+            },
+          }
         ]
       },
       manifest: {
@@ -70,20 +116,47 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'vue-i18n'],
+          'chart': ['chart.js/auto'],
+          'speedtest': ['@cloudflare/speedtest'],
+          'svgmap': ['svgmap'],
+          'browser-detect': ['@thumbmarkjs/thumbmarkjs', 'detect-gpu', 'ua-parser-js'],
+          'utils-getips': [
+            '@/utils/getips/index',
+            '@/utils/valid-ip',
+            '@/utils/transform-ip-data',
+            '@/utils/masked-info'
+          ],
+          'utils-data': [
+            '@/utils/country-name',
+            '@/utils/speedtest-colos'
+          ],
+          'utils-auth': [
+            '@/utils/authenticated-fetch'
+          ],
+          'utils-analytics': [
+            '@/utils/use-analytics'
+          ]
         },
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name.endsWith('.woff') || assetInfo.name.endsWith('.woff2')) {
+          if (assetInfo.fileName && (assetInfo.fileName.endsWith('.woff') || assetInfo.fileName.endsWith('.woff2'))) {
             return 'fonts/[name][extname]';
           }
           return 'assets/[name]-[hash][extname]';
         },
+        chunkFileNames: (chunkInfo) => {
+          const prefix = chunkInfo.name.startsWith('utils-') ? 'utils/' : '';
+          return `assets/${prefix}[name].[hash].js`;
+        }
       }
     },
     chunkSizeWarningLimit: 1000,
+    splitChunks: {
+      chunks: 'all',
+      minSize: 20000,
+      maxSize: 500000,
+    }
   },
   server: {
     host: '0.0.0.0',
